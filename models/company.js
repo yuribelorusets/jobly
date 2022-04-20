@@ -2,7 +2,7 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
-const { sqlForPartialUpdate } = require("../helpers/sql");
+const { sqlForPartialUpdate, createWhereSql } = require("../helpers/sql");
 
 /** Related functions for companies. */
 
@@ -66,6 +66,14 @@ class Company {
            ORDER BY name`);
       return companiesRes.rows;
     }
+
+    `SELECT handle,
+    name,
+    description,
+    num_employees AS "numEmployees",
+    logo_url AS "logoUrl"
+  FROM companies
+  WHERE nameLike fhgrggjori AND `
 
     const { setCols, values } = sqlForPartialUpdate(
       data,
@@ -165,9 +173,9 @@ class Company {
   }
 
 
-  // Variable holding possible query strings which will be checked 
+  // Variable holding possible query strings which will be checked
   // Whatever in the query-string becomes filter for query
-  // 
+  //
 }
 
 
