@@ -6,7 +6,7 @@ const { sqlForPartialUpdate, createWhereSql } = require("../helpers/sql");
 
 /** Related functions for companies. */
 
-class Company {
+class Job {
   /** Create a company (from data), update db, return new company data.
    *
    * data should be { handle, name, description, numEmployees, logoUrl }
@@ -16,32 +16,30 @@ class Company {
    * Throws BadRequestError if company already in database.
    * */
 
-  static async create({ handle, name, description, numEmployees, logoUrl }) {
+  static async create({ title, salary, equity, company_handle }) {
     const duplicateCheck = await db.query(
-      `SELECT handle
-           FROM companies
-           WHERE handle = $1`,
-      [handle]);
+      `SELECT title
+           FROM jobs
+           WHERE company_handle = $1`,
+      [company_handle]);
 
     if (duplicateCheck.rows[0])
-      throw new BadRequestError(`Duplicate company: ${handle}`);
+      throw new BadRequestError(`Duplicate job: ${title} at ${company_handle}`);
 
     const result = await db.query(
-      `INSERT INTO companies(
-          handle,
-          name,
-          description,
-          num_employees,
-          logo_url)
+      `INSERT INTO jobs(
+          title,
+          salary,
+          equity,
+          company_handle)
            VALUES
-             ($1, $2, $3, $4, $5)
-           RETURNING handle, name, description, num_employees AS "numEmployees", logo_url AS "logoUrl"`,
+             ($1, $2, $3, $4)
+           RETURNING id, title, salary, equity, company_handle AS "companyHandle"`,
       [
-        handle,
-        name,
-        description,
-        numEmployees,
-        logoUrl,
+        title,
+        salary,
+        equity,
+        company_handle,
       ],
     );
     const company = result.rows[0];
@@ -154,6 +152,4 @@ class Company {
   //
 }
 
-
-module.exports = Company;
-
+module.exports = Job;
