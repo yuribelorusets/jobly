@@ -25,35 +25,33 @@ function createWhereSql(filters) {
   const possibleFilters = ["nameLike", "minEmployees", "maxEmployees"];
   let inputFilters = [];
   let values = [];
-  let idx = 0;
-
   const keys = Object.keys(filters);
-  if (keys.length === 0 || keys.some((key) => !possibleFilters.includes(key))) {
-    throw new BadRequestError("No data");
+
+  if (keys.some((key) => !possibleFilters.includes(key))) {
+    throw new BadRequestError("Invalid data: only nameLike, minEmployees, or maxEmployees allowed");
   }
 
   //generate where conditions and add them to the inputFilters array
   if (keys.includes("maxEmployees")) {
-    inputFilters.push(`num_employees <= $${idx + 1}`);
     values.push(filters["maxEmployees"]);
-    idx++;
+    inputFilters.push(`num_employees <= $${values.length}`);
   }
 
   if (keys.includes("minEmployees")) {
-    inputFilters.push(`num_employees >= $${idx + 1}`);
     values.push(filters["minEmployees"]);
-    idx++;
+    inputFilters.push(`num_employees >= $${values.length}`);
   }
 
   if (keys.includes("nameLike")) {
-    inputFilters.push(`name ILIKE '%$${idx + 1}%'`);
-    values.push(filters["nameLike"]);
-    idx++;
+    values.push(`%${filters["nameLike"]}%`);
+    inputFilters.push(`name ILIKE $${values.length}`);
   }
-
+  
+  let filterConditions = inputFilters.length > 0 ? "WHERE " + inputFilters.join(" AND ") : '';
+  
   return {
-    filterConditions: inputFilters.join(" AND "),
-    values : values,
+    filterConditions,
+    values
   };
 }
 

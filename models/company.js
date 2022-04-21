@@ -49,41 +49,17 @@ class Company {
     return company;
   }
 
-  /** Find all companies.
+  /** Find all companies, or all companies passing filters.
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll(filters) {
-    if (!filters) {
-      const companiesRes = await db.query(
-        `SELECT handle,
-                name,
-                description,
-                num_employees AS "numEmployees",
-                logo_url AS "logoUrl"
-           FROM companies
-           ORDER BY name`);
-      return companiesRes.rows;
-    }
-
-    `SELECT handle,
-    name,
-    description,
-    num_employees AS "numEmployees",
-    logo_url AS "logoUrl"
-  FROM companies
-  WHERE nameLike fhgrggjori AND `
-
-    const { setCols, values } = sqlForPartialUpdate(
-      data,
-      {
-        nameLike: "name",
-        minEmployees: "num_employees",
-        maxEmployees: "num_employees"
-      });
-    const handleVarIdx = "$" + (values.length + 1);
-
+  static async findAll(filters = {}) {
+    let a = {} ;
+    console.log("this is a",a);   
+    console.log("THESE ARE THOSE FILTERS", filters);
+    const { filterConditions, values } = createWhereSql(filters);
+    console.log("THIS ONE",filterConditions);
     const querySql = `
     SELECT handle,
       name,
@@ -91,8 +67,11 @@ class Company {
       num_employees AS "numEmployees",
       logo_url AS "logoUrl"
     FROM companies
-    ORDER BY name`;
-    const result = await db.query(querySql, [...values, handle]);
+    ${filterConditions}`;
+
+    const companiesRes = await db.query(querySql, values);
+
+    return companiesRes.rows;
   }
 
   /** Given a company handle, return data about company.
