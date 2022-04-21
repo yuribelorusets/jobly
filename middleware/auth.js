@@ -50,8 +50,19 @@ function checkIfAdmin(req, res, next) {
   }
 }
 
+function checkIfUserOrAdmin(req, res, next) {
+  try {
+    const currUser = res.locals.user;
+    if (!currUser.isAdmin && currUser.username !== req.params.username) throw new UnauthorizedError();
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
-  checkIfAdmin
+  checkIfAdmin,
+  checkIfUserOrAdmin
 };
