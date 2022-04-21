@@ -56,7 +56,7 @@ class Company {
 
   static async findAll(filters = {}) {
     let a = {} ;
-    console.log("this is a",a);   
+    console.log("this is a",a);
     console.log("THESE ARE THOSE FILTERS", filters);
     const { filterConditions, values } = createWhereSql(filters);
     console.log("THIS ONE",filterConditions);
