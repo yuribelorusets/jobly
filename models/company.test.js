@@ -7,7 +7,7 @@ const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll,
+  commonAfterAll
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -87,7 +87,7 @@ describe("findAll", function () {
   });
   
   test("works: with filter", async function () {
-    let companies = await Company.findAll();
+    let companies = await Company.findAll({nameLike: "c1"});
     expect(companies).toEqual([
       {
         handle: "c1",
@@ -95,21 +95,7 @@ describe("findAll", function () {
         description: "Desc1",
         numEmployees: 1,
         logoUrl: "http://c1.img",
-      },
-      {
-        handle: "c2",
-        name: "C2",
-        description: "Desc2",
-        numEmployees: 2,
-        logoUrl: "http://c2.img",
-      },
-      {
-        handle: "c3",
-        name: "C3",
-        description: "Desc3",
-        numEmployees: 3,
-        logoUrl: "http://c3.img",
-      },
+      }
     ]);
   });
 });

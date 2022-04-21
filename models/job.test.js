@@ -6,13 +6,12 @@ const {
   UnauthorizedError,
 } = require("../expressError");
 const db = require("../db.js");
-const User = require("./user.js");
 const Job = require("./job.js");
 const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll,
+  commonAfterAll
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -70,72 +69,76 @@ describe("findAll", function () {
       {
         id: expect.any(Number),
         title: "j1",
-        salary: "1000",
-        equity: .01,
-        company_handle: "c1",
+        salary: 1000,
+        equity: "0.01",
+        companyHandle: "c1",
       },
       {
         id: expect.any(Number),
         title: "j2",
-        salary: "2000",
-        equity: .02,
-        company_handle: "c2",
+        salary: 2000,
+        equity: "0.02",
+        companyHandle: "c1",
       },
       {
         id: expect.any(Number),
         title: "j3",
-        salary: "3000",
+        salary: 3000,
         equity: null,
-        company_handle: "c3",
+        companyHandle: "c1",
       },
     ]);
   });
 
-  test("works: with filter", async function () {
-    let jobs = await Job.findAll();
-    expect(jobs).toEqual([
-      {
-        handle: "c1",
-        name: "C1",
-        description: "Desc1",
-        numEmployees: 1,
-        logoUrl: "http://c1.img",
-      },
-      {
-        handle: "c2",
-        name: "C2",
-        description: "Desc2",
-        numEmployees: 2,
-        logoUrl: "http://c2.img",
-      },
-      {
-        handle: "c3",
-        name: "C3",
-        description: "Desc3",
-        numEmployees: 3,
-        logoUrl: "http://c3.img",
-      },
-    ]);
-  });
+  // test("works: with filter", async function () {
+  //   let jobs = await Job.findAll({});
+  //   expect(jobs).toEqual([
+  //     {
+  //       id: expect.any(Number),
+  //       title: "j1",
+  //       salary: 1000,
+  //       equity: ".01",
+  //       companyHandle: "c1",
+  //     },
+  //     {
+  //       id: expect.any(Number),
+  //       title: "j2",
+  //       salary: 2000,
+  //       equity: ".02",
+  //       companyHandle: "c1",
+  //     },
+  //     {
+  //       id: expect.any(Number),
+  //       title: "j3",
+  //       salary: 3000,
+  //       equity: null,
+  //       companyHandle: "c1",
+  //     },
+  //   ]);
+  // });
 });
 
 /************************************** get */
 
 describe("get", function () {
   test("works", async function () {
-    let job = await Job.get("c1");
+    const testIdQ = await db.query(`
+    SELECT id FROM jobs
+    WHERE title = 'j1'`);
+    const testId = testIdQ.rows[0].id;
+    let job = await Job.get(testId);
     expect(job).toEqual({
-      handle: "c1",
-      name: "C1",
-      description: "Desc1",
-      numEmployees: 1,
-      logoUrl: "http://c1.img",
+      id: testId,
+      title: "j1",
+      salary: 1000,
+      equity: "0.01",
+      companyHandle: "c1",
     });
   });
 
   test("not found if no such job", async function () {
     try {
-      await Job.get("nope");
+      await Job.get(0);
       fail();
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
@@ -147,41 +150,47 @@ describe("get", function () {
 
 describe("update", function () {
   const updateData = {
-    name: "New",
-    description: "New Description",
-    numEmployees: 10,
-    logoUrl: "http://new.img",
+      title: "j5",
+      salary: 1000,
+      equity: "0.01"
   };
+ 
 
   test("works", async function () {
-    let job = await Job.update("c1", updateData);
+    const testIdQ = await db.query(`
+    SELECT id FROM jobs
+    WHERE title = 'j1'`);
+  const testId = testIdQ.rows[0].id;
+    let job = await Job.update(testId, updateData);
     expect(job).toEqual({
-      handle: "c1",
-      ...updateData,
+      id: testId,
+      title: "j5",
+      salary: 1000,
+      equity: "0.01",
+      companyHandle: "c1",
     });
 
     const result = await db.query(
-          `SELECT handle, name, description, num_employees, logo_url
-           FROM jobs
-           WHERE handle = 'c1'`);
+          `SELECT id, title, salary, equity, company_handle
+          FROM jobs
+          WHERE id = ${testId}`);
     expect(result.rows).toEqual([{
-      handle: "c1",
-      name: "New",
-      description: "New Description",
-      num_employees: 10,
-      logo_url: "http://new.img",
+      id: testId,
+      title: "j5",
+      salary: 1000,
+      equity: "0.01",
+      companyHandle: "c1",
     }]);
   });
 
   test("works: null fields", async function () {
     const updateDataSetNulls = {
-      name: "New",
-      description: "New Description",
-      numEmployees: null,
-      logoUrl: null,
+      title: "j5",
+      salary: 1000,
+      equity: null
     };
 
-    let job = await Job.update("c1", updateDataSetNulls);
+    let job = await Job.update(testId, updateDataSetNulls);
     expect(job).toEqual({
       handle: "c1",
       ...updateDataSetNulls,
