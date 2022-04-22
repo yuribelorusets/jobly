@@ -12,7 +12,8 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  testId
+  testId,
+  getID
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -124,7 +125,7 @@ describe("findAll", function () {
 
 describe("get", function () {
   test("works", async function () {
-    // console.log("test id!", testId)
+    console.log("##########################!", await getID())
     // const testIdQ = await db.query(`
     // SELECT id FROM jobs
     // WHERE title = 'j1'`);
