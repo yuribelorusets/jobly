@@ -72,7 +72,7 @@ class Job {
   /** Given an id, return data about job.
    *
    * Returns { id, title, salary, equity, company_handle }
-   *   
+   *
    * Throws NotFoundError if not found.
    **/
 
@@ -107,25 +107,29 @@ class Job {
    */
 
   static async update(id, data) {
-    const { setCols, values } = sqlForPartialUpdate(
-      data,
-      {
-        numEmployees: "num_employees",
-        logoUrl: "logo_url",
-      });
-    const handleVarIdx = "$" + (values.length + 1);
+    const { setCols, values } = sqlForPartialUpdate(data, {
+      title : "title",
+      salary : "salary",
+      equity : "equity"
+    });
+    const idVarIdx = "$" + (values.length + 1);
+
+    const validUpdateFields = ["title", "salary", "equity"]
+    if (!Object.keys(data).some(key => validUpdateFields.includes(key))){
+      throw new BadRequestError(`Can only update job title, salary and equity`)
+    }
 
     const querySql = `
-      UPDATE companies
+      UPDATE jobs
       SET ${setCols}
-        WHERE handle = ${handleVarIdx}
-        RETURNING handle, name, description, num_employees AS "numEmployees", logo_url AS "logoUrl"`;
-    const result = await db.query(querySql, [...values, handle]);
-    const company = result.rows[0];
+        WHERE id = ${idVarIdx}
+        RETURNING id, title, salary, equity, company_handle AS "companyHandle"`;
+    const result = await db.query(querySql, [...values, id]);
+    const job = result.rows[0];
 
-    if (!company) throw new NotFoundError(`No company: ${handle}`);
+    if (!job) throw new NotFoundError(`No job: ${id}`);
 
-    return company;
+    return job;
   }
 
   /** Delete given company from database; returns undefined.

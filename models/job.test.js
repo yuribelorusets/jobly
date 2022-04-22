@@ -11,7 +11,8 @@ const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll
+  commonAfterAll,
+  testId
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -34,13 +35,14 @@ describe("create", function () {
     expect(job.title).toEqual("test");
 
     const result = await db.query(
-          `SELECT id, title, salary, equity, company_handle
+      `SELECT id, title, salary, equity, company_handle
            FROM jobs
-           WHERE company_handle = 'c2'`);
+           WHERE company_handle = 'c2'`
+    );
 
     expect(result.rows).toEqual([
       {
-        id : expect.any(Number),
+        id: expect.any(Number),
         title: "test",
         salary: 5000,
         equity: null,
@@ -122,13 +124,14 @@ describe("findAll", function () {
 
 describe("get", function () {
   test("works", async function () {
-    const testIdQ = await db.query(`
-    SELECT id FROM jobs
-    WHERE title = 'j1'`);
-    const testId = testIdQ.rows[0].id;
-    let job = await Job.get(testId);
+    // console.log("test id!", testId)
+    // const testIdQ = await db.query(`
+    // SELECT id FROM jobs
+    // WHERE title = 'j1'`);
+    // const testId = testIdQ.rows[0].id;
+    let job = await Job.get(testId[0]);
     expect(job).toEqual({
-      id: testId,
+      id: testId[0],
       title: "j1",
       salary: 1000,
       equity: "0.01",
@@ -150,20 +153,19 @@ describe("get", function () {
 
 describe("update", function () {
   const updateData = {
-      title: "j5",
-      salary: 1000,
-      equity: "0.01"
+    title: "j5",
+    salary: 1000,
+    equity: "0.01",
   };
- 
 
   test("works", async function () {
-    const testIdQ = await db.query(`
-    SELECT id FROM jobs
-    WHERE title = 'j1'`);
-  const testId = testIdQ.rows[0].id;
-    let job = await Job.update(testId, updateData);
+    // const testIdQ = await db.query(`
+    // SELECT id FROM jobs
+    // WHERE title = 'j1'`);
+    // const testId = testIdQ.rows[0].id;
+    let job = await Job.update(testId[0], updateData);
     expect(job).toEqual({
-      id: testId,
+      id: testId[0],
       title: "j5",
       salary: 1000,
       equity: "0.01",
@@ -171,47 +173,58 @@ describe("update", function () {
     });
 
     const result = await db.query(
-          `SELECT id, title, salary, equity, company_handle
+      `SELECT id, title, salary, equity, company_handle AS "companyHandle"
           FROM jobs
-          WHERE id = ${testId}`);
-    expect(result.rows).toEqual([{
-      id: testId,
-      title: "j5",
-      salary: 1000,
-      equity: "0.01",
-      companyHandle: "c1",
-    }]);
+          WHERE id = ${testId[0]}`
+    );
+    expect(result.rows).toEqual([
+      {
+        id: testId[0],
+        title: "j5",
+        salary: 1000,
+        equity: "0.01",
+        companyHandle: "c1",
+      },
+    ]);
   });
 
   test("works: null fields", async function () {
+    // const testIdQ = await db.query(`
+    // SELECT id FROM jobs
+    // WHERE title = 'j1'`);
+    // const testId[0] = testIdQ.rows[0].id;
+
     const updateDataSetNulls = {
-      title: "j5",
+      title: "j1",
       salary: 1000,
-      equity: null
+      equity: null,
     };
 
-    let job = await Job.update(testId, updateDataSetNulls);
+    let job = await Job.update(testId[0], updateDataSetNulls);
     expect(job).toEqual({
-      handle: "c1",
+      id: testId[0],
+      companyHandle: "c1",
       ...updateDataSetNulls,
     });
 
     const result = await db.query(
-          `SELECT handle, name, description, num_employees, logo_url
+      `SELECT id, title, salary, company_handle AS "companyHandle"
            FROM jobs
-           WHERE handle = 'c1'`);
-    expect(result.rows).toEqual([{
-      handle: "c1",
-      name: "New",
-      description: "New Description",
-      num_employees: null,
-      logo_url: null,
-    }]);
+           WHERE id = ${testId[0]}`
+    );
+    expect(result.rows).toEqual([
+      {
+        companyHandle: "c1",
+        title: "j1",
+        salary: 1000,
+        id: testId[0],
+      },
+    ]);
   });
 
   test("not found if no such job", async function () {
     try {
-      await Job.update("nope", updateData);
+      await Job.update(0, updateData);
       fail();
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
@@ -233,8 +246,7 @@ describe("update", function () {
 describe("remove", function () {
   test("works", async function () {
     await Job.remove("c1");
-    const res = await db.query(
-        "SELECT handle FROM jobs WHERE handle='c1'");
+    const res = await db.query("SELECT handle FROM jobs WHERE handle='c1'");
     expect(res.rows.length).toEqual(0);
   });
 
