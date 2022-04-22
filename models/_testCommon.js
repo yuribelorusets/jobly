@@ -3,7 +3,6 @@ const bcrypt = require("bcrypt");
 const db = require("../db.js");
 const { BCRYPT_WORK_FACTOR } = require("../config");
 let testId = [];
-let standardTest = {};
 
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
@@ -40,10 +39,6 @@ async function commonBeforeAll() {
   testId.push((await db.query(`
              SELECT id FROM jobs
              WHERE title = 'j1'`)).rows[0].id);
-  standardTest.value = ((await db.query(`
-             SELECT id FROM jobs
-             WHERE title = 'j1'`)).rows[0].id);
-  // testId = testIdQ.rows[0].id;
 }
 
 async function commonBeforeEach() {
@@ -64,6 +59,5 @@ module.exports = {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  testId,
-  standardTest
+  testId
 };

@@ -3,7 +3,6 @@
 const {
   NotFoundError,
   BadRequestError,
-  UnauthorizedError,
 } = require("../expressError");
 const db = require("../db.js");
 const Job = require("./job.js");
@@ -12,8 +11,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  testId,
-  getID
+  testId
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -125,11 +123,6 @@ describe("findAll", function () {
 
 describe("get", function () {
   test("works", async function () {
-    console.log("##########################!", await getID())
-    // const testIdQ = await db.query(`
-    // SELECT id FROM jobs
-    // WHERE title = 'j1'`);
-    // const testId = testIdQ.rows[0].id;
     let job = await Job.get(testId[0]);
     expect(job).toEqual({
       id: testId[0],
@@ -160,10 +153,6 @@ describe("update", function () {
   };
 
   test("works", async function () {
-    // const testIdQ = await db.query(`
-    // SELECT id FROM jobs
-    // WHERE title = 'j1'`);
-    // const testId = testIdQ.rows[0].id;
     let job = await Job.update(testId[0], updateData);
     expect(job).toEqual({
       id: testId[0],
@@ -190,11 +179,6 @@ describe("update", function () {
   });
 
   test("works: null fields", async function () {
-    // const testIdQ = await db.query(`
-    // SELECT id FROM jobs
-    // WHERE title = 'j1'`);
-    // const testId[0] = testIdQ.rows[0].id;
-
     const updateDataSetNulls = {
       title: "j1",
       salary: 1000,
@@ -246,14 +230,14 @@ describe("update", function () {
 
 describe("remove", function () {
   test("works", async function () {
-    await Job.remove("c1");
-    const res = await db.query("SELECT handle FROM jobs WHERE handle='c1'");
+    await Job.remove(testId[0]);
+    const res = await db.query(`SELECT id FROM jobs WHERE id=${testId[0]}`);
     expect(res.rows.length).toEqual(0);
   });
 
   test("not found if no such job", async function () {
     try {
-      await Job.remove("nope");
+      await Job.remove(0);
       fail();
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
