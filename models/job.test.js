@@ -216,6 +216,16 @@ describe("update", function () {
     }
   });
 
+  test("bad request with invalid data", async function () {
+    try {
+      await Job.update("c1", {jobName: "test bad"});
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+});
+
   test("bad request with no data", async function () {
     try {
       await Job.update("c1", {});
@@ -224,7 +234,6 @@ describe("update", function () {
       expect(err instanceof BadRequestError).toBeTruthy();
     }
   });
-});
 
 /************************************** remove */
 

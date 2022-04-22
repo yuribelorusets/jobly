@@ -2,7 +2,7 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
-const { sqlForPartialUpdate, createWhereSql } = require("../helpers/sql");
+const { sqlForPartialUpdate, createWhereSqlJob } = require("../helpers/sql");
 
 /** Related functions for companies. */
 
@@ -20,8 +20,8 @@ class Job {
     const duplicateCheck = await db.query(
       `SELECT title
            FROM jobs
-           WHERE company_handle = $1`,
-      [company_handle]);
+           WHERE company_handle = $1 AND title = $2`,
+      [company_handle, title]);
 
     if (duplicateCheck.rows[0])
       throw new BadRequestError(`Duplicate job: ${title} at ${company_handle}`);
@@ -53,7 +53,7 @@ class Job {
    * */
 
   static async findAll(filters = {}) {
-    const { filterConditions, values } = createWhereSql(filters);
+    const { filterConditions, values } = createWhereSqlJob(filters);
 
     const querySql = `
     SELECT id,

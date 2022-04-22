@@ -46,13 +46,48 @@ function createWhereSql(filters) {
     values.push(`%${filters["nameLike"]}%`);
     inputFilters.push(`name ILIKE $${values.length}`);
   }
-  
+
   let filterConditions = inputFilters.length > 0 ? "WHERE " + inputFilters.join(" AND ") : '';
-  
+
   return {
     filterConditions,
     values
   };
 }
 
-module.exports = { sqlForPartialUpdate, createWhereSql };
+function createWhereSqlJob(filters) {
+  const possibleFilters = ["title", "minSalary", "hasEquity"];
+  let inputFilters = [];
+  let values = [];
+  const keys = Object.keys(filters);
+
+  if (keys.some((key) => !possibleFilters.includes(key))) {
+    throw new BadRequestError("Invalid data: only title, minSalary, or hasEquity allowed");
+  }
+
+  //generate where conditions and add them to the inputFilters array
+  if (keys.includes("title")) {
+    values.push(`%${filters["title"]}%`);
+    inputFilters.push(`title ILIKE $${values.length}`);
+  }
+
+  if (keys.includes("minSalary")) {
+    values.push(filters["minSalary"]);
+    inputFilters.push(`salary >= $${values.length}`);
+  }
+
+  if (keys.includes("hasEquity")) {
+    if (filters["hasEquity"]) {
+      inputFilters.push(`equity != null`);
+    }
+  }
+
+  let filterConditions = inputFilters.length > 0 ? "WHERE " + inputFilters.join(" AND ") : '';
+
+  return {
+    filterConditions,
+    values
+  };
+}
+
+module.exports = { sqlForPartialUpdate, createWhereSql, createWhereSqlJob };
