@@ -2,7 +2,7 @@
 
 Jobly is a job search application built with a React front-end, Express RESTful API and PostgreSQL database. The API includes full CRUD capabilties on companies, jobs and users and the option to filter by queries. Authorization is required for both front and back-end for select endpoints.
 
-View working demo [here](https://jobly-robyn.surge.sh/).
+View working demo [here](https://jobly-yuri.surge.sh/).
 
 
 ![Home page](./public/screenshots/Homepage.png "Homepage")
