@@ -5,7 +5,7 @@ Jobly is a job search application built with a React front-end, Express RESTful 
 View working demo [here](https://jobly-yuri.surge.sh/).
 
 
-![Home page](./public/screenshots/Homepage.png "Homepage")
+![Home page](.jobly-react-frontend/public/screenshots/Homepage.png "Homepage")
 
 ### Technologies
 - React & React Router
@@ -16,7 +16,7 @@ View working demo [here](https://jobly-yuri.surge.sh/).
 - PostgreSQL
 - Jest
 
-_The backend code used in this application was provided by [Rithm School](https://www.rithmschool.com/), we built the backend as a separate exercise (code can be found [here](https://github.com/robynlgy/express-jobly)). Pair programmed with [Yuri Belorusets](https://github.com/yuribelorusets) on this application._
+_The backend code used in this application was provided by [Rithm School](https://www.rithmschool.com/), we built the backend as a separate exercise (code can be found [here](https://github.com/yuribelorusets/jobly/jobly-express-backend)). Pair programmed with [Robyn Lam](https://github.com/robynlgy) on this application._
 
 ## Available Routes
 
@@ -30,8 +30,8 @@ _The backend code used in this application was provided by [Rithm School](https:
 
 ## Main function controlling current user in app
 
-![Code snippet - State](./public/screenshots/AppStates.png "Code snippet - State")
-![Code snippet - Effect](./public/screenshots/AppUseEffect.png "Code snippet - Effect")
+![Code snippet - State](.jobly-react-frontend/public/screenshots/AppStates.png "Code snippet - State")
+![Code snippet - Effect](.jobly-react-frontend/public/screenshots/AppUseEffect.png "Code snippet - Effect")
 
 1. Rehydrates current user state through searching in localStorage for any token on mount.
 2. If a token is found, the token is saved for subsequent API calls and current user state and context is updated with info from API. Application interface will also be updated.
